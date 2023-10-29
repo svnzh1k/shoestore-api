@@ -57,9 +57,6 @@ public class ShoeService {
     }
 
     public List<Shoe> getShoesInBasket(int userId) {
-        // select s.id, s.name, s.price, s.quantity, s.size, s.image from shoe s
-        //        join user_shoe us on us.shoe_id = s.id
-        //        join "user" u on u.id = us.user_id;
         return jdbcTemplate.query("""
                 select s.id, s.name, s.price, s.quantity, s.size, s.image from shoe s
                         join user_shoe us on us.shoe_id = s.id
