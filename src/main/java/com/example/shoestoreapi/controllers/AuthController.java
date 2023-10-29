@@ -6,17 +6,21 @@ import com.example.shoestoreapi.jwt.JwtService;
 import com.example.shoestoreapi.models.Role;
 import com.example.shoestoreapi.models.User;
 import com.example.shoestoreapi.services.UserService;
+import com.example.shoestoreapi.util.IncorrectJSONException;
 import com.example.shoestoreapi.util.UserAlreadyExistsException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -34,8 +38,16 @@ public class AuthController {
         this.authenticationProvider = authenticationProvider;
     }
 
-    @PostMapping( "/register")
-    public HttpStatus register(@RequestBody UserDTO userDTO) throws UserAlreadyExistsException {
+    @PostMapping( "/signup")
+    public HttpStatus register(@RequestBody @Valid UserDTO userDTO, BindingResult bindingResult) throws UserAlreadyExistsException, IncorrectJSONException {
+        if (bindingResult.hasErrors()){
+            List<FieldError> errors = bindingResult.getFieldErrors();
+            StringBuilder str = new StringBuilder();
+            for (FieldError error : errors){
+                str.append(error.getField()).append(": ").append(error.getDefaultMessage()).append(";\n");
+            }
+            throw new IncorrectJSONException(str.toString());
+        }
         Optional <User> useropt = userService.getUser(userDTO.getUsername());
         if (useropt.isPresent()){
             throw new UserAlreadyExistsException("a user with that email already exists");
@@ -49,20 +61,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody UserDTO userDTO){
+    public ResponseEntity<String> login(@RequestBody @Valid UserDTO userDTO) throws BadCredentialsException {
         Optional<User> user = userService.getUser(userDTO.getUsername());
         if (user.isEmpty()){
-            System.out.println("exception");
-            throw new UsernameNotFoundException("no such user");
+            throw new UsernameNotFoundException("there is no user with that email");
         }
-        //System.out.println(user.getUsername() + " hello");
-        Authentication authentication = authenticationProvider.authenticate(
-                new UsernamePasswordAuthenticationToken(userDTO.getUsername(), userDTO.getPassword())
-        );
-        if (authentication.isAuthenticated()){
-            System.out.println("if rabotaet");
-            return jwtService.generateToken(userDTO.getUsername());
-        }
-        return "no such user";
+        authenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(userDTO.getUsername(), userDTO.getPassword()));
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(jwtService.generateToken(userDTO.getUsername()));
     }
 }

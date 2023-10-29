@@ -16,14 +16,15 @@ public class User implements UserDetails {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "username")
+    @Column(name = "username", unique = true, nullable = false)
     private String username;
 
-    @Column(name = "password")
+    @Column(name = "password", nullable = false)
     private String password;
 
+
+    @Column(name = "role", columnDefinition = "varchar")
     @Enumerated(EnumType.STRING)
-    @Column(name = "role")
     private Role role;
 
 
@@ -79,7 +80,7 @@ public class User implements UserDetails {
 
 
     public String getRole() {
-        return role.toString();
+        return role.name();
     }
 
     public void setRole(Role role) {

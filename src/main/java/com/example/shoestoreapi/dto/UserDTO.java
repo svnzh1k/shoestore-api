@@ -1,10 +1,16 @@
 package com.example.shoestoreapi.dto;
 
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.*;
 
 public class UserDTO {
+    @NotBlank
+    @Email
     private String username;
+
+    @NotBlank
+    @Size(min = 2, max = 15)
     private String password;
+
 
     public String getUsername() {
         return username;
