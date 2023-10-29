@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ShoeRepository extends JpaRepository<Shoe, Integer> {
-    void updateShoeById(int id);
+
 }

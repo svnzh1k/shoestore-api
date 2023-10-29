@@ -46,10 +46,6 @@ public class ShoesController {
         return HttpStatus.ACCEPTED;
     }
 
-    @PatchMapping("/{id}")
-    public HttpStatus updateShoe(@PathVariable ("id") int id){
-        shoeService.updateShoe(id);
-        return HttpStatus.ACCEPTED;
-    }
+
 
 }

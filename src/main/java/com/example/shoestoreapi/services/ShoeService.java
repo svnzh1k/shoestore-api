@@ -33,8 +33,6 @@ public class ShoeService {
         shoeRepository.deleteById(id);
     }
 
-    public void updateShoe(int id){
-        shoeRepository.updateShoeById(id);
-    }
+
 
 }
