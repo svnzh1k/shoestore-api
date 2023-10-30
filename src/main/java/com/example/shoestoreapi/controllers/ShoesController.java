@@ -54,7 +54,7 @@ public class ShoesController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Shoe> getShoe(@PathVariable ("id") int id) throws NoSuchElementException {
-        return ResponseEntity.status(HttpStatus.FOUND).body(shoeService.getShoe(id));
+        return ResponseEntity.status(HttpStatus.OK).body(shoeService.getShoe(id));
     }
 
     @DeleteMapping("/{id}")
