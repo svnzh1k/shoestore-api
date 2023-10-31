@@ -14,6 +14,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -31,21 +32,30 @@ public class ShoesController {
         this.modelMapper = modelMapper;
     }
 
+    private void checkBindingResult(BindingResult bindingResult) throws IncorrectJSONException {
+        if (bindingResult.hasErrors()) {
+            StringBuilder msg = new StringBuilder();
+            List<FieldError> errors = bindingResult.getFieldErrors();
+            for (FieldError error : errors) {
+                msg.append(error.getField()).append(": ").append(error.getDefaultMessage()).append("\n");
+            }
+            throw new IncorrectJSONException(msg.toString());
+        }
+    }
+
+
+
+
+
     @GetMapping()
     public List<Shoe> getAllShoes(){
         return shoeService.getAllShoes();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public HttpStatus saveShoe(@RequestBody @Valid ShoeDTO shoeDTO, BindingResult bindingResult) throws IncorrectJSONException {
-        if (bindingResult.hasErrors()){
-            StringBuilder msg = new StringBuilder();
-            List <FieldError> errors = bindingResult.getFieldErrors();
-            for (FieldError error : errors){
-                msg.append(error.getField()).append(": ").append(error.getDefaultMessage()).append("\n");
-            }
-            throw new IncorrectJSONException(msg.toString());
-        }
+        checkBindingResult(bindingResult);
         Shoe shoe = modelMapper.map(shoeDTO, Shoe.class);
         shoeService.save(shoe);
         System.out.println(Arrays.toString(shoe.getImage()));
@@ -57,45 +67,19 @@ public class ShoesController {
         return ResponseEntity.status(HttpStatus.OK).body(shoeService.getShoe(id));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
     public HttpStatus deleteShoe(@PathVariable ("id") int id){
         shoeService.deleteShoe(id);
         return HttpStatus.ACCEPTED;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}")
     public HttpStatus updateShoe(@PathVariable ("id") int id, @RequestBody @Valid ShoeDTO shoeDTO, BindingResult bindingResult) throws IncorrectJSONException {
-        if (bindingResult.hasErrors()){
-            StringBuilder msg = new StringBuilder();
-            List <FieldError> errors = bindingResult.getFieldErrors();
-            for (FieldError error : errors){
-                msg.append(error.getField()).append(": ").append(error.getDefaultMessage()).append("\n");
-            }
-            throw new IncorrectJSONException(msg.toString());
-        }
+        checkBindingResult(bindingResult);
         Shoe shoe = modelMapper.map(shoeDTO, Shoe.class);
         shoeService.update(shoe, id);
         return HttpStatus.ACCEPTED;
     }
-
-    @PostMapping("/{userId}/{shoeId}")
-    public ResponseEntity<String> setOwner(@PathVariable("userId") int userId, @PathVariable ("shoeId") int shoeId){
-        shoeService.setUser(userId, shoeId);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body("set");
-    }
-
-    @DeleteMapping("/{userId}/{shoeId}")
-    public ResponseEntity<String> unsetOwner(@PathVariable("userId") int userId, @PathVariable ("shoeId") int shoeId){
-        shoeService.unsetUser(userId, shoeId);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body("unset");
-    }
-
-    @GetMapping("/basket/{userId}")
-    public List<Shoe> shoesInBasket(@PathVariable ("userId") int userId){
-        return shoeService.getShoesInBasket(userId);
-    }
-
-
-
 }

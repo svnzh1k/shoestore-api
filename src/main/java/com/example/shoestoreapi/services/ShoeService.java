@@ -14,12 +14,11 @@ import java.util.Optional;
 @Service
 public class ShoeService {
     private final ShoeRepository shoeRepository;
-    private final JdbcTemplate jdbcTemplate;
+
 
     @Autowired
-    public ShoeService(ShoeRepository shoeRepository, JdbcTemplate jdbcTemplate) {
+    public ShoeService(ShoeRepository shoeRepository) {
         this.shoeRepository = shoeRepository;
-        this.jdbcTemplate = jdbcTemplate;
     }
 
     public List<Shoe> getAllShoes(){
@@ -48,18 +47,5 @@ public class ShoeService {
     }
 
 
-    public void setUser(int userId, int shoeId) {
-        jdbcTemplate.update("INSERT INTO user_shoe(user_id, shoe_id) values (?, ?)", userId, shoeId);
-    }
 
-    public void unsetUser(int userId, int shoeId) {
-        jdbcTemplate.update("DELETE FROM user_shoe where user_id = ? AND shoe_id = ?", userId, shoeId);
-    }
-
-    public List<Shoe> getShoesInBasket(int userId) {
-        return jdbcTemplate.query("""
-                select s.id, s.name, s.price, s.quantity, s.size, s.image from shoe s
-                        join user_shoe us on us.shoe_id = s.id
-                        join "user" u on u.id = us.user_id where user_id = ?;""",new Object[]{userId}, new BeanPropertyRowMapper<>(Shoe.class));
-    }
 }
