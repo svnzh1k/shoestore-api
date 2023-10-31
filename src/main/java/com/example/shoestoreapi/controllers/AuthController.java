@@ -11,6 +11,7 @@ import com.example.shoestoreapi.util.UserAlreadyExistsException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,6 +21,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,13 +62,16 @@ public class AuthController {
         return HttpStatus.ACCEPTED;
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody @Valid UserDTO userDTO) throws BadCredentialsException {
+    @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<HashMap<String, String>> login(@RequestBody @Valid UserDTO userDTO) throws BadCredentialsException {
         Optional<User> user = userService.getUser(userDTO.getUsername());
         if (user.isEmpty()){
             throw new UsernameNotFoundException("there is no user with that email");
         }
         authenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(userDTO.getUsername(), userDTO.getPassword()));
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(jwtService.generateToken(userDTO.getUsername()));
+        System.out.println("token has been generated");
+        HashMap <String, String> token = new HashMap<>();
+        token.put("token", jwtService.generateToken(userDTO.getUsername()));
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(token);
     }
 }
