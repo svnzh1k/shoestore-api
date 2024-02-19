@@ -21,6 +21,7 @@ import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/shoes")
+@CrossOrigin(origins = "*")
 public class ShoesController {
     private final ShoeService shoeService;
     private final ModelMapper modelMapper;

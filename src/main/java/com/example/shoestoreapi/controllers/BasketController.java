@@ -11,6 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/basket")
+@CrossOrigin(origins = "*")
 public class BasketController {
     private final BasketService basketService;
 

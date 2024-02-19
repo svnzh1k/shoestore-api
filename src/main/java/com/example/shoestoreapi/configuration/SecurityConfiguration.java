@@ -39,14 +39,10 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
         http.authorizeHttpRequests(request ->
-                request.requestMatchers("/auth/**").permitAll().anyRequest().authenticated());
+                request.anyRequest().permitAll());
         http.sessionManagement(req -> req.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.authenticationProvider(customAuthenticationProvider);
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
-
-
-
-
 }

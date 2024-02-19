@@ -55,10 +55,7 @@ public class AuthController {
         if (userOptional.isPresent()){
             throw new UserAlreadyExistsException("a user with that email already exists");
         }
-        User user = new User();
-        user.setUsername(userDTO.getUsername());
-        user.setPassword(userDTO.getPassword());
-        user.setRole("USER");
+        User user = modelMapper.map(userOptional.get(), User.class);
         userService.save(user);
         return HttpStatus.ACCEPTED;
     }
@@ -73,7 +70,6 @@ public class AuthController {
         AuthDTO authDTO = modelMapper.map(userOptional.get(), AuthDTO.class);
         authDTO.setToken(jwtService.generateToken(authDTO.getUsername()));
         return new ResponseEntity<>(authDTO, HttpStatus.OK);
-
     }
 
 

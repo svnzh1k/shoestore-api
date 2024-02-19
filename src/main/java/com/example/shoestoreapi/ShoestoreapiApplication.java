@@ -19,7 +19,7 @@ public class ShoestoreapiApplication {
 //        return new WebMvcConfigurer() {
 //            @Override
 //            public void addCorsMappings(CorsRegistry registry) {
-//                registry.addMapping("/**").allowedOrigins("http://localhost:8080");
+//                registry.addMapping("/**").allowedOrigins("178.22.175.66");
 //            }
 //        };
 //    }
